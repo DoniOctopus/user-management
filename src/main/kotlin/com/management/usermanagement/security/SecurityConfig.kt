@@ -1,5 +1,7 @@
 package com.management.usermanagement.security
 
+import com.management.usermanagement.service.impl.RedisTokenRepository
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
@@ -12,7 +14,7 @@ import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 @Configuration
-class SecurityConfig(private val jwtUtil: JwtUtil) {
+class SecurityConfig(private val jwtUtil: JwtUtil, private val redisTokenRepository: RedisTokenRepository) {
 
     @Bean
     fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
@@ -34,7 +36,7 @@ class SecurityConfig(private val jwtUtil: JwtUtil) {
             .sessionManagement { session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
-            .addFilterBefore(JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter::class.java)
+            .addFilterBefore(JwtAuthenticationFilter(jwtUtil ,redisTokenRepository ), UsernamePasswordAuthenticationFilter::class.java)
             .build()
     }
 }

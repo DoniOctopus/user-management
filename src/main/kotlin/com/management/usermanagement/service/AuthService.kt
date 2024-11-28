@@ -7,4 +7,5 @@ import com.management.usermanagement.model.response.LoginResponse
 interface AuthService {
     fun login(loginRequest: LoginRequest): LoginResponse
     fun register(user: User): User
+    fun logout(token: String)
 }

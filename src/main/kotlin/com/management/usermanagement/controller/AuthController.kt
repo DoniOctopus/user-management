@@ -5,10 +5,7 @@ import com.management.usermanagement.entity.User
 import com.management.usermanagement.model.response.LoginResponse
 import com.management.usermanagement.service.AuthService
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 
 @RestController
@@ -32,5 +29,11 @@ class AuthController(private val authService: AuthService) {
     fun registerUser(@RequestBody user: User): ResponseEntity<User> {
         val registeredUser = authService.register(user.copy(roles = listOf("USER")))
         return ResponseEntity.ok(registeredUser)
+    }
+
+    @PostMapping("/logout")
+    fun logout(@RequestHeader("Authorization") token: String): ResponseEntity<String> {
+        authService.logout(token)
+        return ResponseEntity.ok("Logout successful")
     }
 }

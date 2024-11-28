@@ -2,33 +2,35 @@ package com.management.usermanagement.security
 
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Component
 import java.util.*
-
+import java.util.concurrent.TimeUnit
 
 @Component
-class JwtUtil {
+class JwtUtil() {
     private val secretKey = "asdewsdaiuerhriwojduhwefoasjdoheouhqojwfbwiehoi"
     private val expirationMs = 3600000L
 
     fun generateToken(username: String): String {
-        return Jwts.builder()
+        val token = Jwts.builder()
             .setSubject(username)
             .setIssuedAt(Date())
             .setExpiration(Date(System.currentTimeMillis() + expirationMs))
             .signWith(Keys.hmacShaKeyFor(secretKey.toByteArray()))
             .compact()
+        return token
     }
 
     fun validateToken(token: String): Boolean {
-        return try {
+        try {
             Jwts.parserBuilder()
                 .setSigningKey(Keys.hmacShaKeyFor(secretKey.toByteArray()))
                 .build()
                 .parseClaimsJws(token)
-            true
-        } catch (e: Exception) {
-            false
+            return true;
+        }catch (ex: Exception){
+            return false
         }
     }
 
@@ -39,5 +41,21 @@ class JwtUtil {
             .parseClaimsJws(token)
             .body
             .subject
+    }
+
+    fun getExpirationTime(token: String): Long {
+        val claims = Jwts.parserBuilder()
+            .setSigningKey(Keys.hmacShaKeyFor(secretKey.toByteArray()))
+            .build()
+            .parseClaimsJws(token)
+            .body
+        return claims.expiration.time - System.currentTimeMillis()
+    }
+
+    fun parseToken(token: String): String? {
+        if (token.startsWith("Bearer ")) {
+            return token.substring("Bearer ".length)
+        }
+        return null
     }
 }
